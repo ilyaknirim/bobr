@@ -112,7 +112,12 @@ function playRussianRock() {
   }, 125);
 
   // Басовая линия
-  const bassNotes = [82.41, 82.41, 110, 82.41, 73.42, 82.41, 110, 82.41]; // Ноты E, E, A, E, D, E, A, E
+  const bassNotes = [
+    [82.41, 82.41, 110, 82.41, 73.42, 82.41, 110, 82.41], // Рифф 1: E, E, A, E, D, E, A, E
+    [98, 98, 110, 98, 87.31, 98, 110, 98], // Рифф 2: G, G, A, G, F, G, A, G
+    [82.41, 73.42, 65.41, 73.42, 82.41, 73.42, 65.41, 73.42] // Рифф 3: E, D, C, D, E, D, C, D
+  ];
+  let currentRiff = 0;
   let bassNoteIndex = 0;
 
   const bassInterval = setInterval(() => {
@@ -128,7 +133,7 @@ function playRussianRock() {
     bassGain.connect(audioContext.destination);
 
     bass.type = 'sawtooth';
-    bass.frequency.value = bassNotes[bassNoteIndex];
+    bass.frequency.value = bassNotes[currentRiff][bassNoteIndex];
 
     bassGain.gain.setValueAtTime(0.3, audioContext.currentTime);
     bassGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
@@ -136,11 +141,21 @@ function playRussianRock() {
     bass.start(audioContext.currentTime);
     bass.stop(audioContext.currentTime + 0.2);
 
-    bassNoteIndex = (bassNoteIndex + 1) % bassNotes.length;
+    bassNoteIndex = (bassNoteIndex + 1) % bassNotes[currentRiff].length;
+    
+    // Переключаем рифф каждые 4 повторения
+    if (bassNoteIndex === 0) {
+      currentRiff = (currentRiff + 1) % bassNotes.length;
+    }
   }, 500);
 
   // Гитарный рифф
-  const guitarNotes = [164.81, 146.83, 130.81, 146.83, 164.81, 0, 146.83, 130.81]; // Ноты E, D, C, D, E, пауза, D, C
+  const guitarRiffs = [
+    [164.81, 146.83, 130.81, 146.83, 164.81, 0, 146.83, 130.81], // Рифф 1: E, D, C, D, E, пауза, D, C
+    [196, 174.61, 146.83, 174.61, 196, 0, 174.61, 146.83], // Рифф 2: G, F, D, F, G, пауза, F, D
+    [164.81, 130.81, 110, 130.81, 164.81, 0, 130.81, 110] // Рифф 3: E, C, A, C, E, пауза, C, A
+  ];
+  let currentGuitarRiff = 0;
   let guitarNoteIndex = 0;
 
   const guitarInterval = setInterval(() => {
@@ -149,8 +164,8 @@ function playRussianRock() {
       return;
     }
 
-    if (guitarNotes[guitarNoteIndex] === 0) {
-      guitarNoteIndex = (guitarNoteIndex + 1) % guitarNotes.length;
+    if (guitarRiffs[currentGuitarRiff][guitarNoteIndex] === 0) {
+      guitarNoteIndex = (guitarNoteIndex + 1) % guitarRiffs[currentGuitarRiff].length;
       return;
     }
 
@@ -163,11 +178,18 @@ function playRussianRock() {
     guitarGain.connect(audioContext.destination);
 
     guitar.type = 'sawtooth';
-    guitar.frequency.value = guitarNotes[guitarNoteIndex];
+    guitar.frequency.value = guitarRiffs[currentGuitarRiff][guitarNoteIndex];
 
     guitarFilter.type = 'lowpass';
     guitarFilter.frequency.value = 2000;
     guitarFilter.Q.value = 5;
+    
+    // Добавляем эффект дисторшна
+    const distortion = audioContext.createWaveShaper();
+    distortion.curve = makeDistortionCurve(50);
+    distortion.oversample = '4x';
+    guitarFilter.connect(distortion);
+    distortion.connect(guitarGain);
 
     guitarGain.gain.setValueAtTime(0.2, audioContext.currentTime);
     guitarGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
@@ -175,8 +197,91 @@ function playRussianRock() {
     guitar.start(audioContext.currentTime);
     guitar.stop(audioContext.currentTime + 0.3);
 
-    guitarNoteIndex = (guitarNoteIndex + 1) % guitarNotes.length;
+    guitarNoteIndex = (guitarNoteIndex + 1) % guitarRiffs[currentGuitarRiff].length;
+    
+    // Переключаем рифф каждые 4 повторения
+    if (guitarNoteIndex === 0) {
+      currentGuitarRiff = (currentGuitarRiff + 1) % guitarRiffs.length;
+    }
   }, 250);
+  
+  // Соло-гитара (проигрывается время от времени)
+  const soloInterval = setInterval(() => {
+    if (!musicPlaying) {
+      clearInterval(soloInterval);
+      return;
+    }
+    
+    // Соло проигрывается с вероятностью 20%
+    if (Math.random() < 0.2) {
+      playGuitarSolo();
+    }
+  }, 8000);
+}
+
+// Функция для создания кривой дисторшна
+function makeDistortionCurve(amount) {
+  const samples = 44100;
+  const curve = new Float32Array(samples);
+  const deg = Math.PI / 180;
+  
+  for (let i = 0; i < samples; i++) {
+    const x = (i * 2) / samples - 1;
+    curve[i] = ((3 + amount) * x * 20 * deg) / (Math.PI + amount * Math.abs(x));
+  }
+  
+  return curve;
+}
+
+// Функция для проигрывания гитарного соло
+function playGuitarSolo() {
+  if (!musicPlaying) return;
+  
+  // Ноты для соло (блюзовая пентатоника)
+  const soloNotes = [
+    196, 220, 246.94, 261.63, 293.66, 329.63, 349.23, 392,
+    440, 493.88, 523.25, 587.33, 659.25, 698.46, 783.99
+  ];
+  
+  // Проигрываем случайную последовательность нот
+  let noteCount = 0;
+  const soloNoteInterval = setInterval(() => {
+    if (!musicPlaying || noteCount >= 16) {
+      clearInterval(soloNoteInterval);
+      return;
+    }
+    
+    const solo = audioContext.createOscillator();
+    const soloGain = audioContext.createGain();
+    const soloFilter = audioContext.createBiquadFilter();
+    const distortion = audioContext.createWaveShaper();
+    
+    solo.connect(soloFilter);
+    soloFilter.connect(distortion);
+    distortion.connect(soloGain);
+    soloGain.connect(audioContext.destination);
+    
+    // Случайная нота из соло-нот
+    const randomNoteIndex = Math.floor(Math.random() * soloNotes.length);
+    solo.frequency.value = soloNotes[randomNoteIndex];
+    
+    solo.type = 'sawtooth';
+    
+    soloFilter.type = 'lowpass';
+    soloFilter.frequency.value = 3000;
+    soloFilter.Q.value = 8;
+    
+    distortion.curve = makeDistortionCurve(80);
+    distortion.oversample = '4x';
+    
+    soloGain.gain.setValueAtTime(0.3, audioContext.currentTime);
+    soloGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+    
+    solo.start(audioContext.currentTime);
+    solo.stop(audioContext.currentTime + 0.2);
+    
+    noteCount++;
+  }, 100);
 }
 
 // Остановка музыки
