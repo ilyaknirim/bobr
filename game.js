@@ -110,6 +110,9 @@ const ctx = canvas.getContext('2d');
 // Инициализация аудио
 initMusic();
 
+// Добавляем переменную для отслеживания последнего прыжка
+let lastJumpTime = 0;
+
 let W = canvas.width;
 let H = canvas.height;
 
@@ -124,7 +127,12 @@ const beaver = {
   jump() {
     if (this.y >= groundY - this.h - 0.1) {
       this.vy = -11;
-      playJumpSound(); // Звук прыжка
+      // Добавляем небольшую задержку между звуками прыжка
+      const currentTime = Date.now();
+      if (currentTime - lastJumpTime > 200) {
+        playJumpSound(); // Звук прыжка
+        lastJumpTime = currentTime;
+      }
     }
   }
 };
@@ -149,6 +157,9 @@ function spawnBottle() {
     w: 24,
     h: 40
   });
+  
+  // Добавляем звук появления бутылки
+  playBottleSpawnSound();
 }
 
 function reset() {
@@ -163,6 +174,9 @@ function reset() {
   
   // Запускаем музыку при начале игры
   playRussianRock();
+  
+  // Устанавливаем начальный темп
+  updateMusicTempo(speed);
 }
 
 function collide(a, b) {
@@ -207,7 +221,17 @@ function update() {
   // Очки
   if (!gameOver) {
     score++;
+    const oldSpeed = speed;
     speed += 0.0005;
+    
+    // Обновляем темп музыки при значительном изменении скорости
+    if (Math.floor(oldSpeed * 10) !== Math.floor(speed * 10)) {
+      updateMusicTempo(speed);
+      // Обновляем интервалы музыки
+      if (window.updateMusicIntervals) {
+        window.updateMusicIntervals();
+      }
+    }
   }
   scoreEl.textContent = score;
 }
