@@ -107,6 +107,9 @@ function drawTrees(ctx, W, H, minHeight, maxHeight, opacity, offset) {
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
+// Инициализация аудио
+initMusic();
+
 let W = canvas.width;
 let H = canvas.height;
 
@@ -121,6 +124,7 @@ const beaver = {
   jump() {
     if (this.y >= groundY - this.h - 0.1) {
       this.vy = -11;
+      playJumpSound(); // Звук прыжка
     }
   }
 };
@@ -156,6 +160,9 @@ function reset() {
   beaver.vy = 0;
   gameOver = false;
   gameStarted = true;
+  
+  // Запускаем музыку при начале игры
+  playRussianRock();
 }
 
 function collide(a, b) {
@@ -188,6 +195,10 @@ function update() {
       best = Math.max(best, score);
       localStorage.setItem('beaver-best', best);
       bestEl.textContent = 'BEST: ' + best;
+      
+      // Воспроизводим звук столкновения и останавливаем музыку
+      playCollisionSound();
+      stopMusic();
 
 
     }
