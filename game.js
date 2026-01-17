@@ -31,8 +31,37 @@ bottleSVG.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(`
   <rect x="10" y="0" width="4" height="6" fill="#2b8fb3"/>
 </svg>`);
 
-// ===== Функция для рисования фона с заснеженным еловым лесом =====
-function drawBackground(ctx, W, H, frame) {
+// ===== Функция для рисования фона с постепенным переходом от леса к космосу =====
+function drawBackground(ctx, W, H, frame, score) {
+  // Определяем этап игры на основе очков
+  // 0-100 очков: лес
+  // 101-300 очков: переход от леса к закату
+  // 301-600 очков: закат и сумерки
+  // 601-1000 очков: переход к ночи
+  // 1001+ очков: космос с метеоритами
+
+  let stage = 0; // по умолчанию - лес
+  if (score > 100 && score <= 300) stage = 1; // переход к закату
+  else if (score > 300 && score <= 600) stage = 2; // закат и сумерки
+  else if (score > 600 && score <= 1000) stage = 3; // переход к ночи
+  else if (score > 1000) stage = 4; // космос
+
+  // Рисуем фон в зависимости от этапа
+  if (stage === 0) {
+    drawForestBackground(ctx, W, H, frame);
+  } else if (stage === 1) {
+    drawTransitionToSunset(ctx, W, H, frame, score);
+  } else if (stage === 2) {
+    drawSunsetBackground(ctx, W, H, frame);
+  } else if (stage === 3) {
+    drawTransitionToNight(ctx, W, H, frame, score);
+  } else {
+    drawSpaceBackground(ctx, W, H, frame);
+  }
+}
+
+// ===== Лесной фон (начальный этап) =====
+function drawForestBackground(ctx, W, H, frame) {
   // Небо
   const gradient = ctx.createLinearGradient(0, 0, 0, H);
   gradient.addColorStop(0, '#d6eaf8');
@@ -61,6 +90,254 @@ function drawBackground(ctx, W, H, frame) {
   ctx.lineTo(0, H);
   ctx.closePath();
   ctx.fill();
+}
+
+// ===== Переход от леса к закату =====
+function drawTransitionToSunset(ctx, W, H, frame, score) {
+  // Вычисляем коэффициент перехода (от 0 до 1)
+  const transition = (score - 100) / 200;
+
+  // Небо с переходом от дневного к закатному
+  const gradient = ctx.createLinearGradient(0, 0, 0, H);
+
+  // Цвета неба меняются от голубого к оранжевому/розовому
+  const r1 = Math.floor(214 * (1 - transition) + 255 * transition);
+  const g1 = Math.floor(234 * (1 - transition) + 157 * transition);
+  const b1 = Math.floor(248 * (1 - transition) + 77 * transition);
+
+  const r2 = Math.floor(174 * (1 - transition) + 70 * transition);
+  const g2 = Math.floor(214 * (1 - transition) + 130 * transition);
+  const b2 = Math.floor(241 * (1 - transition) + 180 * transition);
+
+  gradient.addColorStop(0, `rgb(${r1}, ${g1}, ${b1})`);
+  gradient.addColorStop(1, `rgb(${r2}, ${g2}, ${b2})`);
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, W, H);
+
+  // Ели становятся темнее и менее заметными
+  const treeOpacity = 1 - transition * 0.5;
+
+  // Задний слой елей (самый дальний)
+  ctx.fillStyle = `rgba(200, 230, 201, ${treeOpacity * 0.3})`;
+  drawTrees(ctx, W, H, 40, 60, 0.3, frame * 0.2);
+
+  // Средний слой елей
+  ctx.fillStyle = `rgba(165, 214, 167, ${treeOpacity * 0.5})`;
+  drawTrees(ctx, W, H, 60, 80, 0.5, frame * 0.5);
+
+  // Передний слой елей
+  ctx.fillStyle = `rgba(129, 199, 132, ${treeOpacity * 0.7})`;
+  drawTrees(ctx, W, H, 80, 100, 0.7, frame * 0.8);
+
+  // Снег на земле становится желтоватым
+  const snowR = Math.floor(255 * (1 - transition) + 240 * transition);
+  const snowG = Math.floor(255 * (1 - transition) + 230 * transition);
+  const snowB = Math.floor(255 * (1 - transition) + 200 * transition);
+  ctx.fillStyle = `rgb(${snowR}, ${snowG}, ${snowB})`;
+  ctx.beginPath();
+  ctx.moveTo(0, H - 24);
+  ctx.lineTo(W, H - 24);
+  ctx.lineTo(W, H);
+  ctx.lineTo(0, H);
+  ctx.closePath();
+  ctx.fill();
+}
+
+// ===== Фон заката и сумерек =====
+function drawSunsetBackground(ctx, W, H, frame) {
+  // Небо заката
+  const gradient = ctx.createLinearGradient(0, 0, 0, H);
+  gradient.addColorStop(0, '#ff9d4d');
+  gradient.addColorStop(0.5, '#ff8252');
+  gradient.addColorStop(1, '#ff8268');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, W, H);
+
+  // Добавляем солнце на горизонте
+  ctx.fillStyle = '#ffeb3b';
+  ctx.beginPath();
+  ctx.arc(W - 80, H - 60, 25, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Ели становятся силуэтами
+  ctx.fillStyle = 'rgba(34, 49, 39, 0.7)';
+  drawTrees(ctx, W, H, 40, 60, 0.3, frame * 0.2);
+
+  ctx.fillStyle = 'rgba(34, 49, 39, 0.8)';
+  drawTrees(ctx, W, H, 60, 80, 0.5, frame * 0.5);
+
+  ctx.fillStyle = 'rgba(34, 49, 39, 0.9)';
+  drawTrees(ctx, W, H, 80, 100, 0.7, frame * 0.8);
+
+  // Земля становится темной
+  ctx.fillStyle = '#4a3b31';
+  ctx.beginPath();
+  ctx.moveTo(0, H - 24);
+  ctx.lineTo(W, H - 24);
+  ctx.lineTo(W, H);
+  ctx.lineTo(0, H);
+  ctx.closePath();
+  ctx.fill();
+}
+
+// ===== Переход от заката к ночи =====
+function drawTransitionToNight(ctx, W, H, frame, score) {
+  // Вычисляем коэффициент перехода (от 0 до 1)
+  const transition = (score - 600) / 400;
+
+  // Небо с переходом от закатного к ночному
+  const gradient = ctx.createLinearGradient(0, 0, 0, H);
+
+  // Цвета неба меняются от оранжевого к темно-синему/черному
+  const r1 = Math.floor(255 * (1 - transition) + 10 * transition);
+  const g1 = Math.floor(157 * (1 - transition) + 10 * transition);
+  const b1 = Math.floor(77 * (1 - transition) + 30 * transition);
+
+  const r2 = Math.floor(70 * (1 - transition) + 5 * transition);
+  const g2 = Math.floor(130 * (1 - transition) + 5 * transition);
+  const b2 = Math.floor(180 * (1 - transition) + 20 * transition);
+
+  gradient.addColorStop(0, `rgb(${r1}, ${g1}, ${b1})`);
+  gradient.addColorStop(1, `rgb(${r2}, ${g2}, ${b2})`);
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, W, H);
+
+  // Солнце садится и исчезает
+  if (transition < 0.5) {
+    const sunOpacity = 1 - transition * 2;
+    const sunY = H - 60 + transition * 40;
+    ctx.fillStyle = `rgba(255, 235, 59, ${sunOpacity})`;
+    ctx.beginPath();
+    ctx.arc(W - 80, sunY, 25, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Появляются первые звезды
+  if (transition > 0.3) {
+    const starsOpacity = (transition - 0.3) / 0.7;
+    drawStars(ctx, W, H, starsOpacity);
+  }
+
+  // Ели становятся еще темнее
+  const treeOpacity = 0.7 + transition * 0.3;
+  ctx.fillStyle = `rgba(34, 49, 39, ${treeOpacity})`;
+  drawTrees(ctx, W, H, 40, 60, 0.3, frame * 0.2);
+  drawTrees(ctx, W, H, 60, 80, 0.5, frame * 0.5);
+  drawTrees(ctx, W, H, 80, 100, 0.7, frame * 0.8);
+
+  // Земля становится почти черной
+  const groundR = Math.floor(74 * (1 - transition) + 5 * transition);
+  const groundG = Math.floor(59 * (1 - transition) + 5 * transition);
+  const groundB = Math.floor(49 * (1 - transition) + 15 * transition);
+  ctx.fillStyle = `rgb(${groundR}, ${groundG}, ${groundB})`;
+  ctx.beginPath();
+  ctx.moveTo(0, H - 24);
+  ctx.lineTo(W, H - 24);
+  ctx.lineTo(W, H);
+  ctx.lineTo(0, H);
+  ctx.closePath();
+  ctx.fill();
+}
+
+// ===== Космический фон с метеоритами =====
+function drawSpaceBackground(ctx, W, H, frame) {
+  // Космическое небо
+  const gradient = ctx.createLinearGradient(0, 0, 0, H);
+  gradient.addColorStop(0, '#000011');
+  gradient.addColorStop(0.5, '#000033');
+  gradient.addColorStop(1, '#000022');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, W, H);
+
+  // Звезды
+  drawStars(ctx, W, H, 1);
+
+  // Метеориты
+  drawMeteors(ctx, W, H, frame);
+
+  // Земля видна как темная линия на горизонте
+  ctx.fillStyle = '#0a0a0a';
+  ctx.fillRect(0, H - 24, W, 24);
+}
+
+// ===== Функция для рисования звезд =====
+function drawStars(ctx, W, H, opacity) {
+  ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+
+  // Рисуем звезды случайным образом, но с фиксированным seed для предсказуемости
+  const seed = 12345;
+  let random = seed;
+
+  function nextRandom() {
+    random = (random * 9301 + 49297) % 233280;
+    return random / 233280;
+  }
+
+  // Рисуем 100 звезд
+  for (let i = 0; i < 100; i++) {
+    const x = nextRandom() * W;
+    const y = nextRandom() * H * 0.7; // Только в верхней 70% экрана
+    const size = nextRandom() * 2 + 0.5;
+
+    ctx.beginPath();
+    ctx.arc(x, y, size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+// ===== Функция для рисования метеоритов =====
+function drawMeteors(ctx, W, H, frame) {
+  // Метеориты появляются случайным образом
+  const meteorCount = 5;
+
+  for (let i = 0; i < meteorCount; i++) {
+    // Используем индекс и frame для создания предсказуемой позиции метеорита
+    const seed = 54321 + i * 1000;
+    let random = seed;
+
+    function nextRandom() {
+      random = (random * 9301 + 49297) % 233280;
+      return random / 233280;
+    }
+
+    // Метеориты появляются каждые 200 кадров
+    const meteorFrame = (frame + i * 40) % 200;
+
+    if (meteorFrame < 50) {
+      const progress = meteorFrame / 50;
+
+      // Начальная позиция (случайная в верхней части экрана)
+      const startX = nextRandom() * W;
+      const startY = nextRandom() * H * 0.5;
+
+      // Конечная позиция (вниз и вправо)
+      const endX = startX + 100 + nextRandom() * 100;
+      const endY = startY + 100 + nextRandom() * 100;
+
+      // Текущая позиция
+      const x = startX + (endX - startX) * progress;
+      const y = startY + (endY - startY) * progress;
+
+      // Рисуем метеорит
+      const gradient = ctx.createLinearGradient(x - 20, y - 20, x, y);
+      gradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+      gradient.addColorStop(0.5, 'rgba(255, 255, 200, 0.5)');
+      gradient.addColorStop(1, 'rgba(255, 200, 100, 0.8)');
+
+      ctx.strokeStyle = gradient;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x - 20, y - 20);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+
+      // Яркая голова метеорита
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.beginPath();
+      ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
 }
 
 function drawTrees(ctx, W, H, minHeight, maxHeight, opacity, offset) {
@@ -237,8 +514,8 @@ function update() {
 }
 
 function draw() {
-  // Рисуем фон с заснеженным еловым лесом
-  drawBackground(ctx, W, H, frame);
+  // Рисуем фон с переходом от леса к космосу в зависимости от очков
+  drawBackground(ctx, W, H, frame, score);
 
   // Земля
   ctx.fillStyle = '#ddd';
