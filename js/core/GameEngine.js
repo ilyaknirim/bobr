@@ -24,6 +24,7 @@ export class GameEngine {
     
     this.gameSpeed = 3;
     this.score = 0;
+    this.gameStarted = false; // Флаг для отслеживания начала игры после нажатия
     
     // Инициализация объектов
     this.audio = new AudioManager();
@@ -169,6 +170,20 @@ export class GameEngine {
     document.getElementById('final-score').textContent = this.score;
     document.getElementById('final-days').textContent = this.currentDay;
     document.getElementById('final-best').textContent = Math.max(this.score, best);
+
+    // Добавляем сообщение о трезвости
+    const sobrietyMessage = document.createElement('p');
+    sobrietyMessage.textContent = `Бобёр не бухал ${this.currentDay} ${this.currentDay === 1 ? 'день' : (this.currentDay >= 2 && this.currentDay <= 4 ? 'дня' : 'дней')}!`;
+    sobrietyMessage.style.color = '#4CAF50';
+    sobrietyMessage.style.fontSize = '18px';
+    sobrietyMessage.style.fontWeight = 'bold';
+    sobrietyMessage.style.marginTop = '10px';
+
+    const resultsContainer = document.querySelector('.results');
+    if (resultsContainer) {
+      resultsContainer.appendChild(sobrietyMessage);
+    }
+
     document.getElementById('game-over').classList.remove('hidden');
     document.getElementById('hint').classList.add('hidden');
   }

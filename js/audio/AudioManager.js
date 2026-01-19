@@ -5,6 +5,10 @@ export class AudioManager {
     this.soundGain = null;
     this.musicPlaying = false;
     this.isMuted = false;
+
+    // Свойства для разнообразной музыки
+    this.currentBeat = 0;
+    this.currentPattern = 0;
     
     this.init();
   }
