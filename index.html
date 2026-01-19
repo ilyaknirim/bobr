@@ -2,19 +2,72 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>Beaver Runner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>Beaver Runner - Помоги бобру не бухать!</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div id="ui">
-    <div id="score">0</div>
-    <div id="best">BEST: 0</div>
+  <div id="loading-screen">
+    <div class="loader">Загрузка...</div>
   </div>
-  <canvas id="game" width="360" height="180"></canvas>
-  <div id="hint">Коснись экрана, чтобы прыгнуть</div>
+  
+  <div id="ui">
+    <div class="score-container">
+      <div id="score">0</div>
+      <div class="label">ОЧКИ</div>
+    </div>
+    <div class="best-container">
+      <div id="best">0</div>
+      <div class="label">РЕКОРД</div>
+    </div>
+    <div class="day-container">
+      <div id="day">День 1</div>
+      <div class="label">СУТКИ</div>
+    </div>
+  </div>
+  
+  <canvas id="game"></canvas>
+  
+  <div id="hint">
+    <div class="tap-icon">👆</div>
+    <span>Нажмите для прыжка</span>
+  </div>
+  
+  <div id="start-screen" class="overlay">
+    <h1>Beaver Runner</h1>
+    <p class="tagline">Помоги бобру не бухать!</p>
+    <div class="stats">
+      <p>Ваш рекорд: <span id="start-best">0</span> очков</p>
+      <p>Сыграно игр: <span id="games-played">0</span></p>
+    </div>
+    <button id="start-btn" class="btn">НАЧАТЬ</button>
+    <div class="instructions">
+      <p>Избегайте бутылок и сохраняйте трезвость!</p>
+      <p>Каждый день появляются новые испытания</p>
+    </div>
+  </div>
+  
+  <div id="game-over" class="overlay hidden">
+    <h2>Игра окончена!</h2>
+    <div class="results">
+      <p>Набрано очков: <span id="final-score">0</span></p>
+      <p>Прожито дней: <span id="final-days">0</span></p>
+      <p>Ваш рекорд: <span id="final-best">0</span></p>
+    </div>
+    <button id="restart-btn" class="btn">ИГРАТЬ СНОВА</button>
+  </div>
+  
+  <div id="controls">
+    <button id="sound-btn" class="control-btn" title="Звук">🔊</button>
+    <button id="pause-btn" class="control-btn" title="Пауза">⏸️</button>
+  </div>
 
-<script src="audio.js"></script>
-<script src="game.js"></script>
+  <!-- Скрипты -->
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
