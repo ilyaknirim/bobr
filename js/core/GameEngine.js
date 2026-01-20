@@ -194,6 +194,7 @@ export class GameEngine {
     this.dayProgress = 0;
     this.score = 0;
     this.gameSpeed = 3 * this.scale;
+    this.gameStarted = false; // Игра начнется только после нажатия
     
     if (this.beaver) this.beaver.reset();
     if (this.obstacles) this.obstacles.reset();

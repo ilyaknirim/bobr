@@ -66,6 +66,13 @@ export class Beaver {
       this.velocityY = -11 * this.scale;
       this.isJumping = true;
       this.state = 'jumping';
+
+      // Запускаем игру при первом прыжке
+      if (this.game && !this.game.gameStarted) {
+        this.game.gameStarted = true;
+        this.game.audio.playMusic();
+        document.getElementById('hint').classList.add('hidden');
+      }
       
       // Воспроизводим звук через game, если он доступен
       if (this.game && this.game.audio) {
