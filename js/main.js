@@ -58,6 +58,18 @@ class Game {
         }
       });
     }
+    
+    // Обработчик касания на весь экран для первого запуска
+    document.addEventListener('click', (e) => {
+      const startScreen = document.getElementById('start-screen');
+      if (!startScreen.classList.contains('hidden') && 
+          !e.target.closest('#start-btn')) {
+        startScreen.classList.add('hidden');
+        if (this.gameEngine) {
+          this.gameEngine.start();
+        }
+      }
+    });
 
     // Кнопка рестарта
     const restartBtn = document.getElementById('restart-btn');
@@ -69,6 +81,18 @@ class Game {
         }
       });
     }
+    
+    // Обработчик касания на весь экран для перезапуска
+    document.addEventListener('click', (e) => {
+      const gameOverScreen = document.getElementById('game-over');
+      if (!gameOverScreen.classList.contains('hidden') && 
+          !e.target.closest('#restart-btn')) {
+        gameOverScreen.classList.add('hidden');
+        if (this.gameEngine) {
+          this.gameEngine.restart();
+        }
+      }
+    });
 
     // Управление звуком
     const soundBtn = document.getElementById('sound-btn');

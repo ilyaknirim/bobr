@@ -83,6 +83,7 @@ export class GameEngine {
     this.dayProgress = 0;
     this.score = 0;
     this.gameSpeed = 3 * this.scale;
+    this.gameStarted = true;
     
     this.beaver.reset();
     this.obstacles.reset();
@@ -94,7 +95,7 @@ export class GameEngine {
   }
 
   update() {
-    if (this.state.isPaused || this.state.isGameOver) return;
+    if (this.state.isPaused || this.state.isGameOver || !this.gameStarted) return;
     
     this.state.incrementFrame();
     
@@ -171,17 +172,11 @@ export class GameEngine {
     document.getElementById('final-days').textContent = this.currentDay;
     document.getElementById('final-best').textContent = Math.max(this.score, best);
 
-    // Добавляем сообщение о трезвости
-    const sobrietyMessage = document.createElement('p');
-    sobrietyMessage.textContent = `Бобёр не бухал ${this.currentDay} ${this.currentDay === 1 ? 'день' : (this.currentDay >= 2 && this.currentDay <= 4 ? 'дня' : 'дней')}!`;
-    sobrietyMessage.style.color = '#4CAF50';
-    sobrietyMessage.style.fontSize = '18px';
-    sobrietyMessage.style.fontWeight = 'bold';
-    sobrietyMessage.style.marginTop = '10px';
-
-    const resultsContainer = document.querySelector('.results');
-    if (resultsContainer) {
-      resultsContainer.appendChild(sobrietyMessage);
+    // Обновляем сообщение о трезвости
+    const sobrietyMessage = document.querySelector('.sobriety-message');
+    if (sobrietyMessage) {
+      const daysText = this.currentDay === 1 ? 'день' : (this.currentDay >= 2 && this.currentDay <= 4 ? 'дня' : 'дней');
+      sobrietyMessage.innerHTML = `Поздравляю, Бобёр не бухал <span id="final-days">${this.currentDay}</span> ${daysText}!`;
     }
 
     document.getElementById('game-over').classList.remove('hidden');
