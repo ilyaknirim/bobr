@@ -38,7 +38,7 @@
     <span>Нажмите для прыжка</span>
   </div>
   
-  <div id="start-screen" class="overlay">
+  <div id="start-screen" class="overlay hidden">
     <h1>Beaver Runner</h1>
     <p class="tagline">Помоги бобру не бухать!</p>
     <div class="stats">
@@ -51,7 +51,39 @@
       <p>Каждый день появляются новые испытания</p>
     </div>
   </div>
+
+  <!-- Экран вступления -->
+  <div id="intro-screen" class="overlay hidden">
+    <div class="story-container">
+      <h1 class="story-title">ЛЕГЕНДА О БОБРЕ</h1>
+      <div class="story-content">
+        <div class="story-page active" id="intro-page-1">
+          <div class="story-icon">🌍</div>
+          <p class="story-text">Давным-давно мир погряз в пьянстве и унынии. Люди забыли о радости трезвой жизни...</p>
+        </div>
+        <div class="story-page" id="intro-page-2">
+          <div class="story-icon">🦫</div>
+          <p class="story-text">Но был один герой - бобёр, который решил бросить вызов алкогольному злу. Он поклялся не пить ни капли...</p>
+        </div>
+        <div class="story-page" id="intro-page-3">
+          <div class="story-icon">⚔️</div>
+          <p class="story-text">Теперь ему предстоит пройти через тысячи искушений, чтобы спасти мир от алкогольного рабства...</p>
+        </div>
+      </div>
+      <div class="story-controls">
+        <button id="prev-story" class="story-btn hidden">←</button>
+        <div class="story-dots">
+          <span class="dot active" data-page="1"></span>
+          <span class="dot" data-page="2"></span>
+          <span class="dot" data-page="3"></span>
+        </div>
+        <button id="next-story" class="story-btn">→</button>
+      </div>
+      <button id="start-game" class="btn hidden">НАЧАТЬ ИГРУ</button>
+    </div>
+  </div>
   
+  <!-- Экран окончания игры -->
   <div id="game-over" class="overlay hidden">
     <h2>Игра окончена!</h2>
     <div class="beaver-result">
@@ -64,6 +96,37 @@
     </div>
     <p class="tap-restart">Коснись экрана, чтобы начать заново</p>
     <button id="restart-btn" class="btn">ИГРАТЬ СНОВА</button>
+  </div>
+
+  <!-- Экран финала -->
+  <div id="final-screen" class="overlay hidden">
+    <div class="story-container">
+      <h1 class="story-title">СПАСЕНИЕ МИРА</h1>
+      <div class="story-content">
+        <div class="story-page active" id="final-page-1">
+          <div class="story-icon">🏆</div>
+          <p class="story-text">Бобёр выдержал испытание! <span id="final-days-text">0</span> дней трезвости изменили мир навсегда...</p>
+        </div>
+        <div class="story-page" id="final-page-2">
+          <div class="story-icon">🌟</div>
+          <p class="story-text">Люди, видя его подвиг, тоже начали отказываться от алкоголя. Мир становился лучше с каждым днём...</p>
+        </div>
+        <div class="story-page" id="final-page-3">
+          <div class="story-icon">🌍</div>
+          <p class="story-text">Бобёр стал легендой, символом трезвости и силы воли. Его имя навсегда вошло в историю!</p>
+        </div>
+      </div>
+      <div class="story-controls">
+        <button id="prev-final" class="story-btn hidden">←</button>
+        <div class="story-dots">
+          <span class="dot active" data-page="1"></span>
+          <span class="dot" data-page="2"></span>
+          <span class="dot" data-page="3"></span>
+        </div>
+        <button id="next-final" class="story-btn">→</button>
+      </div>
+      <button id="finish-game" class="btn hidden">ЗАВЕРШИТЬ</button>
+    </div>
   </div>
   
   <div id="controls">

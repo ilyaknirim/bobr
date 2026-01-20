@@ -4,6 +4,7 @@ import { BackgroundSystem } from '../game/Background.js';
 import { AudioManager } from '../audio/AudioManager.js';
 import { InputManager } from './InputManager.js';
 import { StateManager } from './StateManager.js';
+import { StoryManager } from './StoryManager.js';
 
 export class GameEngine {
   constructor(config) {
@@ -29,6 +30,7 @@ export class GameEngine {
     // Инициализация объектов
     this.audio = new AudioManager();
     this.state = new StateManager();
+    this.story = new StoryManager(this);
     this.input = null;
     this.beaver = null;
     this.obstacles = null;
@@ -167,20 +169,10 @@ export class GameEngine {
       this.audio.stopMusic();
     }
 
-    // Показываем экран Game Over
-    document.getElementById('final-score').textContent = this.score;
-    document.getElementById('final-days').textContent = this.currentDay;
-    document.getElementById('final-best').textContent = Math.max(this.score, best);
-
-    // Обновляем сообщение о трезвости
-    const sobrietyMessage = document.querySelector('.sobriety-message');
-    if (sobrietyMessage) {
-      const daysText = this.currentDay === 1 ? 'день' : (this.currentDay >= 2 && this.currentDay <= 4 ? 'дня' : 'дней');
-      sobrietyMessage.innerHTML = `Поздравляю, Бобёр не бухал <span id="final-days">${this.currentDay}</span> ${daysText}!`;
+    // Показываем экран финала
+    if (this.story) {
+      this.story.showFinalScreen(this.currentDay);
     }
-
-    document.getElementById('game-over').classList.remove('hidden');
-    document.getElementById('hint').classList.add('hidden');
   }
 
   restart() {

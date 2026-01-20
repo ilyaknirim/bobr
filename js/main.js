@@ -31,7 +31,7 @@ class Game {
       
       // Скрытие экрана загрузки
       document.getElementById('loading-screen').classList.add('hidden');
-      document.getElementById('start-screen').classList.remove('hidden');
+      document.getElementById('intro-screen').classList.remove('hidden');
       
       // Обновление статистики
       this.updateStats();

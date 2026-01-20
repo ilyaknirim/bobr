@@ -202,6 +202,63 @@ export class AudioManager {
     }
   }
 
+  playFinalMusic() {
+    if (!this.audioContext) return;
+
+    // Останавливаем текущую музыку
+    this.stopMusic();
+
+    // Торжественная мелодия для финала
+    const notes = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25]; // Ноты от C4 до C5
+    const melody = [0, 2, 4, 5, 4, 2, 0, 7, 5, 4, 2, 0]; // Простая мелодия
+    const duration = 0.4; // Длительность каждой ноты
+
+    // Воспроизводим мелодию
+    melody.forEach((noteIndex, i) => {
+      setTimeout(() => {
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(this.musicGain);
+
+        oscillator.type = 'sine';
+        oscillator.frequency.value = notes[noteIndex];
+
+        gainNode.gain.setValueAtTime(0.2, this.audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration * 0.8);
+
+        oscillator.start();
+        oscillator.stop(this.audioContext.currentTime + duration);
+      }, i * duration * 1000);
+    });
+
+    // Добавляем басовую линию
+    setTimeout(() => {
+      const bassNotes = [130.81, 146.83, 164.81, 174.61]; // Ноты на октаву ниже
+      const bassLine = [0, 2, 1, 3, 0, 2, 1, 0];
+      
+      bassLine.forEach((noteIndex, i) => {
+        setTimeout(() => {
+          const oscillator = this.audioContext.createOscillator();
+          const gainNode = this.audioContext.createGain();
+
+          oscillator.connect(gainNode);
+          gainNode.connect(this.musicGain);
+
+          oscillator.type = 'triangle';
+          oscillator.frequency.value = bassNotes[noteIndex];
+
+          gainNode.gain.setValueAtTime(0.15, this.audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration * 2);
+
+          oscillator.start();
+          oscillator.stop(this.audioContext.currentTime + duration * 2);
+        }, i * duration * 1000);
+      });
+    }, duration * 500);
+  }
+
   toggleMute() {
     this.isMuted = !this.isMuted;
     
