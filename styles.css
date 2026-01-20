@@ -443,3 +443,21 @@ html, body {
   transform: scale(1.2);
 }
 
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 12px 30px;
+  font-size: 16px;
+  border-radius: 50px;
+  cursor: pointer;
+  margin-top: 10px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+

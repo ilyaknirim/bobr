@@ -27,6 +27,11 @@ export class StoryManager {
     if (startGameBtn) {
       startGameBtn.addEventListener('click', () => this.startGameFromIntro());
     }
+    
+    const skipIntroBtn = document.getElementById('skip-intro');
+    if (skipIntroBtn) {
+      skipIntroBtn.addEventListener('click', () => this.showStartScreen());
+    }
 
     // Навигация по точкам для вступления
     dots.forEach(dot => {
@@ -51,6 +56,11 @@ export class StoryManager {
 
     if (finishGameBtn) {
       finishGameBtn.addEventListener('click', () => this.finishGame());
+    }
+    
+    const skipFinalBtn = document.getElementById('skip-final');
+    if (skipFinalBtn) {
+      skipFinalBtn.addEventListener('click', () => this.finishGame());
     }
 
     // Навигация по точкам для финала
@@ -216,5 +226,10 @@ export class StoryManager {
     // Сбрасываем страницы
     this.currentIntroPage = 1;
     this.updateIntroUI();
+  }
+
+  showStartScreen() {
+    document.getElementById('intro-screen').classList.add('hidden');
+    document.getElementById('start-screen').classList.remove('hidden');
   }
 }
